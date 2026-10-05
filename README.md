@@ -219,11 +219,3 @@ PC-IT1> nslookup www.technova.com
 > port before `sticky` learned the right MAC, or a VTY login failing until
 > `ip domain-name` + `crypto key generate rsa` were run in the right order.
 > Replace this note with what actually happened once the lab is built.
-
-## Files
-
-- [`project.pkt`](project.pkt) — *placeholder: add the saved Packet Tracer
-  file here after building*
-- [`topology.png`](topology.png)
-- [`configs/`](configs/)
-- [`verification.md`](verification.md)
