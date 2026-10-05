@@ -59,8 +59,6 @@ Added before cabling (router powered off → insert module → power on).
 | R1-HQ | Slot 1 | HWIC-1FE / NM-1FE-TX | FastEthernet0/1/0 |
 | R2-Branch | WIC slot | HWIC-2T (or WIC-2T) | Serial0/0/0 |
 
-R1-HQ's onboard GigabitEthernet0/0, 0/1, 0/2 need no modules.
-
 ### Router Interface Addressing
 
 | Device | Interface | IP Address | Subnet Mask |
