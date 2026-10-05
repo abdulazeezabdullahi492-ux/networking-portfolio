@@ -1,4 +1,4 @@
-# networking-portfolio
+# Networking-portfolio
 
 # 01 — TechNova Inc.: IP Addressing, VLSM & CIDR
 
@@ -29,7 +29,7 @@ to any device.
 
 ## Topology
 
-<img width="960" height="501" alt="Screenshot 2026-10-04 112434" src="https://github.com/user-attachments/assets/ded038f7-87ac-4097-bb10-b94b39ccdb88" />
+<img width="960" height="501" alt="Screenshot 2026-10-04 112434" src="https://github.com/user-attachments/assets/af588bd6-480e-49d1-8eac-1628787ce5af" />
 
 
 | Device | Role | Model |
@@ -49,25 +49,78 @@ to any device.
 
 ## IP Addressing Scheme
 
-| Device/Interface | IP Address | Subnet Mask | Network/VLAN |
+### Router Interface Modules
+
+Added before cabling (router powered off → insert module → power on).
+
+| Router | Slot | Module | Adds Interface |
 |---|---|---|---|
-| R1-HQ Gi0/0 | 192.168.10.65 | 255.255.255.192 (/26) | IT LAN — 192.168.10.64/26 |
-| R1-HQ Gi0/1 | 192.168.10.129 | 255.255.255.224 (/27) | Sales LAN — 192.168.10.128/27 |
-| R1-HQ Gi0/2 | 192.168.10.161 | 255.255.255.240 (/28) | HR LAN — 192.168.10.160/28 |
-| R1-HQ Fa0/1/0 | 192.168.10.177 | 255.255.255.248 (/29) | Server Farm — 192.168.10.176/29 |
-| R1-HQ Se0/0/0 | 192.168.10.185 | 255.255.255.252 (/30) | WAN — 192.168.10.184/30 |
-| R2-Branch Gi0/0 | 192.168.10.1 | 255.255.255.192 (/26) | Branch LAN — 192.168.10.0/26 |
-| R2-Branch Se0/0/0 | 192.168.10.186 | 255.255.255.252 (/30) | WAN — 192.168.10.184/30 |
-| SW-IT Vlan1 | 192.168.10.126 | 255.255.255.192 (/26) | IT LAN |
-| SW-Sales Vlan1 | 192.168.10.158 | 255.255.255.224 (/27) | Sales LAN |
-| SW-HR Vlan1 | 192.168.10.174 | 255.255.255.240 (/28) | HR LAN |
-| SW-ServerFarm Vlan1 | 192.168.10.182 | 255.255.255.248 (/29) | Server Farm |
-| SW-Branch Vlan1 | 192.168.10.62 | 255.255.255.192 (/26) | Branch LAN |
-| PC-IT1 / PC-IT2 | 192.168.10.66 / .67 | 255.255.255.192 (/26) | IT LAN |
-| PC-Sales1 / PC-Sales2 | 192.168.10.130 / .131 | 255.255.255.224 (/27) | Sales LAN |
-| PC-HR1 / PC-HR2 | 192.168.10.162 / .163 | 255.255.255.240 (/28) | HR LAN |
-| PC-Branch1 / PC-Branch2 | 192.168.10.2 / .3 | 255.255.255.192 (/26) | Branch LAN |
-| Server-DNS | 192.168.10.178 | 255.255.255.248 (/29) | Server Farm |
+| R1-HQ | Slot 0 | HWIC-2T | Serial0/0/0 (and Serial0/0/1, unused) |
+| R1-HQ | Slot 1 | HWIC-1FE / NM-1FE-TX | FastEthernet0/1/0 |
+| R2-Branch | WIC slot | HWIC-2T (or WIC-2T) | Serial0/0/0 |
+
+R1-HQ's onboard GigabitEthernet0/0, 0/1, 0/2 need no modules.
+
+### Router Interface Addressing
+
+| Device | Interface | IP Address | Subnet Mask |
+|---|---|---|---|
+| R1-HQ | GigabitEthernet0/0 | 192.168.10.65 | 255.255.255.192 |
+| R1-HQ | GigabitEthernet0/1 | 192.168.10.129 | 255.255.255.224 |
+| R1-HQ | GigabitEthernet0/2 | 192.168.10.161 | 255.255.255.240 |
+| R1-HQ | FastEthernet0/1/0 | 192.168.10.177 | 255.255.255.248 |
+| R1-HQ | Serial0/0/0 | 192.168.10.185 | 255.255.255.252 |
+| R2-Branch | GigabitEthernet0/0 | 192.168.10.1 | 255.255.255.192 |
+| R2-Branch | Serial0/0/0 | 192.168.10.186 | 255.255.255.252 |
+
+### Cabling Table
+
+| From Device | From Port | To Device | To Port | Cable Type |
+|---|---|---|---|---|
+| R1-HQ | GigabitEthernet0/0 | SW-IT | FastEthernet0/1 | Copper Straight-Through |
+| R1-HQ | GigabitEthernet0/1 | SW-Sales | FastEthernet0/1 | Copper Straight-Through |
+| R1-HQ | GigabitEthernet0/2 | SW-HR | FastEthernet0/1 | Copper Straight-Through |
+| R1-HQ | FastEthernet0/1/0 | SW-ServerFarm | FastEthernet0/1 | Copper Straight-Through |
+| R1-HQ | Serial0/0/0 | R2-Branch | Serial0/0/0 | Serial DCE |
+| R2-Branch | GigabitEthernet0/0 | SW-Branch | FastEthernet0/1 | Copper Straight-Through |
+| SW-IT | FastEthernet0/2, 0/3 | PC-IT1, PC-IT2 | FastEthernet | Copper Straight-Through |
+| SW-Sales | FastEthernet0/2, 0/3 | PC-Sales1, PC-Sales2 | FastEthernet | Copper Straight-Through |
+| SW-HR | FastEthernet0/2, 0/3 | PC-HR1, PC-HR2 | FastEthernet | Copper Straight-Through |
+| SW-ServerFarm | FastEthernet0/2 | Server-DNS | FastEthernet0 | Copper Straight-Through |
+| SW-Branch | FastEthernet0/2, 0/3 | PC-Branch1, PC-Branch2 | FastEthernet | Copper Straight-Through |
+
+> Serial DCE/DTE: connect R1-HQ's end first so R1 ends up DCE (clock rate
+> is set there). Confirm with `show controllers serial0/0/0` — if R2 ended
+> up DCE instead, move `clock rate 64000` to R2's Serial0/0/0.
+
+### Switch Management IP Addressing
+
+Each switch's VLAN 1 management IP is the last usable address in the LAN
+segment it serves, so it never collides with a PC or the router's gateway.
+
+| Switch | Management IP | Subnet Mask | Default Gateway |
+|---|---|---|---|
+| SW-Branch | 192.168.10.62 | 255.255.255.192 | 192.168.10.1 |
+| SW-IT | 192.168.10.126 | 255.255.255.192 | 192.168.10.65 |
+| SW-Sales | 192.168.10.158 | 255.255.255.224 | 192.168.10.129 |
+| SW-HR | 192.168.10.174 | 255.255.255.240 | 192.168.10.161 |
+| SW-ServerFarm | 192.168.10.182 | 255.255.255.248 | 192.168.10.177 |
+
+### PC and Server Addressing
+
+All static (no DHCP in this build).
+
+| Device | IP Address | Subnet Mask | Default Gateway | DNS Server |
+|---|---|---|---|---|
+| PC-Branch1 | 192.168.10.2 | 255.255.255.192 | 192.168.10.1 | 192.168.10.178 |
+| PC-Branch2 | 192.168.10.3 | 255.255.255.192 | 192.168.10.1 | 192.168.10.178 |
+| PC-IT1 | 192.168.10.66 | 255.255.255.192 | 192.168.10.65 | 192.168.10.178 |
+| PC-IT2 | 192.168.10.67 | 255.255.255.192 | 192.168.10.65 | 192.168.10.178 |
+| PC-Sales1 | 192.168.10.130 | 255.255.255.224 | 192.168.10.129 | 192.168.10.178 |
+| PC-Sales2 | 192.168.10.131 | 255.255.255.224 | 192.168.10.129 | 192.168.10.178 |
+| PC-HR1 | 192.168.10.162 | 255.255.255.240 | 192.168.10.161 | 192.168.10.178 |
+| PC-HR2 | 192.168.10.163 | 255.255.255.240 | 192.168.10.161 | 192.168.10.178 |
+| Server-DNS | 192.168.10.178 | 255.255.255.248 | 192.168.10.177 | 192.168.10.178 (self) |
 
 ## Design Decisions
 
