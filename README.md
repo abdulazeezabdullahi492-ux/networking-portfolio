@@ -121,44 +121,43 @@ All static (no DHCP in this build).
 | Server-DNS | 192.168.10.178 | 255.255.255.248 | 192.168.10.177 | 192.168.10.178 |
 
 ## Design Decisions
-
-- **VLSM instead of one fixed mask for every segment.** A single `/26` for
-  all five segments would need five separate 64-address blocks (320
-  addresses) for a design that only needs ~153 host addresses. VLSM sizes
-  each block to its actual requirement, so the whole design fits in 188 of
-  256 addresses in the original `/24`.
-- **Largest-to-smallest allocation order.** Subnets were carved out starting
-  with the biggest host requirement (Branch, 60 hosts) down to the smallest
-  (WAN, 2 hosts). Allocating smallest-first risks stranding a later large
-  requirement in space a smaller subnet already fragmented.
-- **One summarized static route on R2-Branch instead of four.** IT, Sales,
-  HR, and the Server Farm all nest inside `192.168.10.64/25`, so a single
-  `ip route 192.168.10.64 255.255.255.128 192.168.10.185` replaces four
-  separate `/26`–`/29` routes. The alternative — keeping all four individual
-  routes — was rejected because it scales badly: every new HQ subnet would
-  need its own route on R2, where the summarized line already covers any
-  future subnet carved from that same /25.
-- **Static routing instead of a dynamic routing protocol.** With only two
-  routers and a stable topology, a protocol like OSPF or EIGRP would add
-  configuration and convergence overhead with no real benefit here. Static
-  routing was chosen deliberately as the right-sized solution for a
-  two-router WAN link; this is revisited if the topology grows.
-- **SSH-only remote access, Telnet disabled.** `transport input ssh` on the
-  VTY lines was chosen over leaving Telnet available, because Telnet sends
-  credentials in plaintext. The trade-off is that SSH requires RSA key
-  generation and a domain name on every device, which is a small one-time
-  setup cost against a real credential-exposure risk.
-- **Port security with `restrict` rather than `shutdown` as the violation
-  action.** `restrict` drops offending traffic and logs it without taking
-  the port down, so a MAC-address violation doesn't require a network
-  engineer to manually re-enable the port — the trade-off against
-  `shutdown` is a slightly weaker response to a genuine intrusion attempt,
-  judged acceptable for end-user access ports on an internal LAN.
-- **Switch uplink ports excluded from port security.** FastEthernet0/1 on
-  every switch (the uplink to its router) intentionally has no port
-  security or PortFast, since it's a trunk-capable infrastructure link, not
-  an end-user access port — applying port-security there would be
-  incorrect and could block legitimate multi-MAC uplink traffic.
+ 
+- **Used VLSM instead of one mask size for every LAN.** If every segment
+  used the same `/26` mask, the design would need five 64-address blocks —
+  320 addresses — to serve about 153 real users. VLSM lets each subnet be
+  sized to what it actually needs, so the same design only uses 188 of the
+  256 available addresses.
+- **Sized the biggest subnets first.** Branch (60 hosts) was addressed
+  before WAN (2 hosts), not the other way around. Carving out small subnets
+  first can leave an awkward gap that's too small for a later, bigger
+  subnet to fit into — starting big avoids that problem entirely.
+- **Replaced four routes on R2-Branch with one summary route.** IT, Sales,
+  HR, and the Server Farm all happen to fit inside one block,
+  `192.168.10.64/25`. So instead of R2 needing a separate route for each of
+  those four LANs, one line — `ip route 192.168.10.64 255.255.255.128
+  192.168.10.185` — covers all of them. It's also easier to maintain: a new
+  HQ subnet carved from that same /25 would already be covered, with no
+  new route needed.
+- **Used static routes instead of a routing protocol like OSPF.** With only
+  two routers and a topology that isn't going to change on its own, a
+  dynamic routing protocol would just add setup complexity without solving
+  a real problem. Static routes are simpler here and get the job done.
+- **Turned off Telnet, allowed SSH only.** Telnet sends passwords in plain
+  text over the network, so anyone watching the traffic could read them.
+  SSH encrypts the session instead. The only cost is a bit of extra setup
+  (generating RSA keys, setting a domain name) — worth it for not exposing
+  passwords.
+- **Set port security to `restrict` instead of `shutdown`.** If an
+  unauthorized device plugs into a port, `restrict` blocks its traffic and
+  logs the attempt, but leaves the port itself running. `shutdown` would
+  disable the port entirely, meaning someone has to manually turn it back
+  on. For ordinary user ports, restrict keeps things secure without
+  creating unnecessary extra work.
+- **Left port security off the switch-to-router uplink ports.** Each
+  switch's FastEthernet0/1 connects back to the router, not to a single PC
+  — port security is meant for ports where exactly one device's MAC address
+  should ever appear. Turning it on for an uplink could block legitimate
+  traffic, so it's intentionally left out there.
 
 ## Key Configuration
 
