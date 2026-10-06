@@ -205,3 +205,29 @@ spanning-tree bpduguard enable
 ## PC-HR2> nslookup www.technova.com
 
 <img width="475" height="223" alt="image" src="https://github.com/user-attachments/assets/9bcce9e3-f475-4b1c-bd86-4624bf8dbe3f" />
+
+# Results, Discussion & Conclusion — 01-technova-ip-addressing-vlsm-cidr
+
+## Results
+
+Applying VLSM to the assigned `192.168.10.0/24` block produced six right-sized subnets — a `/26` each for the Branch and IT LANs, a `/27` for Sales, a `/28` for HR, a `/29` for the Server Farm, and a `/30` for the WAN link — using 188 of the 256 available addresses, with 68 reserved for future growth. Static addressing was applied by hand to both routers, all five switches, eight PCs, and the DNS/HTTP server, following the addressing scheme in the project README.
+
+On the routing side, R1-HQ carries a single static route to the Branch LAN, and R2-Branch carries a single summarized static route (`192.168.10.64/25`) in place of four separate routes to IT, Sales, HR, and the Server Farm — a direct result of those four subnets nesting inside one CIDR block.
+
+Every router and switch was hardened with encrypted passwords, SSH-only remote access (Telnet disabled), a legal warning banner, console timeout, disabled HTTP/CDP services, and port security (one MAC per access port, violation mode `restrict`, PortFast + BPDU Guard) on every end-user port, while uplink ports were deliberately left out of port security.
+
+What's confirmed by design/calculation: the addressing scheme, the route summary's correctness, and that the configs apply the intended security settings. What still needs confirmation from an actual Packet Tracer build: end-to-end ping connectivity across departments and across the WAN, DNS resolution for `www.technova.com`, successful SSH login, and a blocked Telnet attempt — those are the twelve items in the verification checklist, and they need real captured output (not simulated) before this can be called "tested."
+
+## Discussion
+
+The addressing result demonstrates the core advantage of VLSM over a single fixed mask: a uniform `/26` for all five segments would have needed 320 addresses for roughly 153 actual hosts, nearly 60% waste. Sizing each block to its real requirement (60, 50, 25, 10, 6, 2 hosts) kept the whole design inside the original `/24` with room to spare — this is the practical reason VLSM exists, beyond being a calculation exercise.
+
+The route summarization result illustrates the second half of CIDR's purpose: once subnets are allocated contiguously, blocks that happen to nest inside a larger prefix can be represented by one route instead of many. This matters more as a network grows — on a two-router topology the difference between one route and four is cosmetic, but on a larger network with dozens of subnets per site, summarization is what keeps routing tables manageable and converging quickly.
+
+The security choices reflect a deliberate trade-off rather than default settings. `restrict` was chosen over `shutdown` for port-security violations specifically to avoid turning a single unauthorized device into a reason someone has to physically or remotely re-enable a port — appropriate for ordinary user-facing ports on an internal LAN, though a higher-security environment might reasonably choose `shutdown` instead. Disabling Telnet in favor of SSH closes a real, well-known vulnerability (plaintext credentials) at the cost of a small one-time setup (RSA keys, a domain name) — a trade worth making on any network handling administrative access.
+
+The one open question this design can't resolve on its own is whether the physical build matches the plan. Subnet math and config syntax being correct doesn't guarantee a working network — a swapped DCE/DTE cable, a missed `no shutdown`, or a module in the wrong slot would all break connectivity despite a perfectly sound addressing scheme. That's precisely why the verification checklist exists as a separate step from the design, and why its results can't be filled in until the topology is actually built.
+
+## Conclusion
+
+This lab met its design objectives: a complete, non-wasteful VLSM subnetting scheme was derived for five differently-sized segments from a single `/24` block, static routing was implemented with CIDR-based summarization reducing four routes to one, and baseline device hardening was applied consistently across both routers and all five switches. The addressing and routing design is sound and verifiable by calculation independent of the build.
