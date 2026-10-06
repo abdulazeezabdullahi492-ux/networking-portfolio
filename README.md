@@ -192,22 +192,25 @@ spanning-tree portfast
 spanning-tree bpduguard enable
 ```
 
-Full configs for every device are in [`configs/`](configs/).
-
 ## Verification
-
-> Representative output shown below; full raw log in
-> [`verification.md`](verification.md).
 
 ```
 PC-IT1> ping 192.168.10.65
-<placeholder — paste real captured output>
+
+<img width="414" height="229" alt="image" src="https://github.com/user-attachments/assets/bcaefd4d-0744-4f03-8129-95d91f6b3fdd" />
+
 
 R2-Branch# show ip route
-<placeholder — paste real captured output, confirm S 192.168.10.64/25>
 
-PC-IT1> nslookup www.technova.com
-<placeholder — paste real captured output, should resolve to 192.168.10.178>
+<img width="472" height="533" alt="image" src="https://github.com/user-attachments/assets/fc25a507-9057-4c3c-8329-ae96cc21cc01" />
+
+
+
+PC-HR2> nslookup www.technova.com
+
+<img width="475" height="223" alt="image" src="https://github.com/user-attachments/assets/9bcce9e3-f475-4b1c-bd86-4624bf8dbe3f" />
+
+
 ```
 
 ## Challenges & Lessons Learned
