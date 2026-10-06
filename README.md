@@ -194,30 +194,14 @@ spanning-tree bpduguard enable
 
 ## Verification
 
-```
-PC-IT1> ping 192.168.10.65
+## PC-IT1> ping 192.168.10.65
 
 <img width="414" height="229" alt="image" src="https://github.com/user-attachments/assets/bcaefd4d-0744-4f03-8129-95d91f6b3fdd" />
 
-
-R2-Branch# show ip route
+## R2-Branch# show ip route
 
 <img width="472" height="533" alt="image" src="https://github.com/user-attachments/assets/fc25a507-9057-4c3c-8329-ae96cc21cc01" />
 
-
-
-PC-HR2> nslookup www.technova.com
+## PC-HR2> nslookup www.technova.com
 
 <img width="475" height="223" alt="image" src="https://github.com/user-attachments/assets/9bcce9e3-f475-4b1c-bd86-4624bf8dbe3f" />
-
-
-```
-
-## Challenges & Lessons Learned
-
-> **Placeholder.** This section is meant to hold the real troubleshooting
-> narrative from building and testing the topology — e.g. DCE/DTE clock
-> rate mismatches on the serial link, a port-security violation locking a
-> port before `sticky` learned the right MAC, or a VTY login failing until
-> `ip domain-name` + `crypto key generate rsa` were run in the right order.
-> Replace this note with what actually happened once the lab is built.
